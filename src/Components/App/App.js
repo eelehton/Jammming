@@ -5,6 +5,7 @@ import './App.css';
 import SearchBar from '../SearchBar/SearchBar';
 import SearchResults from '../SearchResults/SearchResults';
 import Playlist from '../Playlist/Playlist';
+import Spotify from '../../util/Spotify';
 
 class App extends React.Component {
   constructor(props) {
@@ -12,28 +13,19 @@ class App extends React.Component {
     //setting searchResults to an array of objects each containing name, artist, album and id properties
   //this.state is a local call
   //hardcoding the Results
-     this.state = {};
-     this.state.searchResults = [{
-         name: "Bad",
-         artist: "U2",
-         album: "Joshua Tree",
-         id: 0,
-       },
-       {
-         name: "Daydream Believer",
-         artist: "The Monkees",
-         album: "The Birds, the Bees & The Monkees",
-         id: 1,
-        }
-     ];
+      this.state = {
+            searchResults : [],
+            playlistName : "Enter Playlist Name",
+            playlistTracks : []
+        };
+     //all this state binding needs to happen under the constructor
     this.state.playlistName = "Brian's Afternoon";
     this.state.playlistTracks = [];
     this.addTrack = this.addTrack.bind(this);
     this.removeTrack = this.removeTrack.bind(this);
-    //step 58: bind this to updatePlaylistName
     this.updatePlaylistName = this.updatePlaylistName.bind(this);
-    //step 68: bind this to search.
     this.search = this.search.bind(this);
+    this.savePlaylist = this.savePlaylist.bind(this);
    }
 
 //this created a method
@@ -90,28 +82,21 @@ addTrack = (track) => {
     this.setState( {playlistTracks});
     }
 
-//Step 57: Create a method called updatePlaylistName and give it an argument called name.
-//Step 57: Set the state of the playlist name to the input argument.
     updatePlaylistName = (name) => {
-        this.state.playlistName = {name};
+        this.state.playlistName = name;
     }
 
     savePlaylist = () => {
-      //Step 63: (likely wrong)generates an array of uri values called track URIs from the playlistTracks.
-      //playlistTracks: ["spotify:track:4iV5W9uYEdYUVa79Axb7Rh","spotify:track:1301WleyT98MSxVHPZCA6M"]
-      //Didn't get how to add a playlistTracks property to the array.
-      trackURIs: [];
-      //Step 64 bind current value of this to savePlaylist
-      this.savePlaylist = this.savePlaylist.bind(this);
+      const trackURIs = this.state.playlistTracks.map(track => track.uri)
     }
-    //Step 67: Create a method called search that accepts a search term and logs the term tot he console
-    search = (searchTerm) => {
-      console.log(searchTerm)
-    }
+    //Create a method called search that accepts a search term and logs the term tot he console
+    search(userSearch) {
+       Spotify.search(term).then(tracks => {
+         this.setState({ searchResults: tracks });
+       });
+     }
 //render needs to be part of my component
-//Step 58: Pass updatePlayListname to the playlist component as an attribute named onNameChange
 //  this passes the value from this.state.searchResults into the SearchResults component with the Prop name searchResults;
-//{/*Step 68: pass search to the searchbar component as an onSearch attribute*/}
   render() {
     return (
       <div>
