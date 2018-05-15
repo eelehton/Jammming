@@ -19,7 +19,7 @@ class App extends React.Component {
             playlistTracks : []
         };
      //all this state binding needs to happen under the constructor
-    this.state.playlistName = "Brian's Afternoon";
+    this.state.playlistName = "Liz's Afternoon";
     this.state.playlistTracks = [];
     this.addTrack = this.addTrack.bind(this);
     this.removeTrack = this.removeTrack.bind(this);
@@ -91,7 +91,7 @@ addTrack = (track) => {
     }
     //Create a method called search that accepts a search term and logs the term tot he console
     search(userSearch) {
-       Spotify.search(term).then(tracks => {
+       Spotify.search(userSearch).then(tracks => {
          this.setState({ searchResults: tracks });
        });
      }

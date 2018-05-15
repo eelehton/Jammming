@@ -7,7 +7,7 @@ const redirectUri = 'http://localhost:3000/';
 let accessToken = '';
 
 const Spotify = {
-  getAccessToken () {
+  getAccessToken: () => {
     //the token is already saved and it hasn't expired yet
     if (accessToken) {
       return accessToken;
@@ -25,20 +25,21 @@ const Spotify = {
       return accessToken;
     } else {
       //tell user to login
-      window.location(`https://accounts.spotify.com/authorize?client_id=${clientID}&response_type=token&scope=playlist-modify-public&redirect_uri=${redirectUri}`)
+      window.location(`https://accounts.spotify.com/authorize?client_id=${clientId}&response_type=token&scope=playlist-modify-public&redirect_uri=${redirectUri}`)
     }
   },
 
   //Step 85: Add a method search that accepts a parameter for user's search term
-  search = (userSearch) => {
+  search: (userSearch) => {
     //returns a promise that will eventually resolve to the list of tracks from search
-    return fetch(`https://api.spotify.com/v1/search?type=track&limit=20&q=${userSearch}`), {
+    return fetch(`https://api.spotify.com/v1/search?type=track&limit=20&q=${userSearch}`, {
       //Adds authorization header to the request for the access token
-      headers: {Authorization: `Bearer ${accessToken}`}.then(reply => {
-        if(reply.ok) {
+      headers: {
+        Authorization: `Bearer ${accessToken}`
+      }
+    }).then(response => {
           return response.json();
-        }
-      }).then(jsonResponse => {
+        }).then(jsonResponse => {
         if (jsonResponse.tracks) {
           return jsonResponse.tracks.items.map(track => ({
               id: track.id,
@@ -46,14 +47,15 @@ const Spotify = {
               artist: track.artists[0].name,
               album: track.album.name,
               uri: track.uri,
-          }))
+          }));
         } else {
           return [];
         }
-      })
-    },
-  }
+      });
+    }
 }
+
+
 
 export default Spotify;
   /*  savePlaylist(playlistName, trackURIs) {
