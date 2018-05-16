@@ -1,5 +1,5 @@
 //Spotify API User Key: 6cb049693d3e491197aa6f297c86cbaf
-import React, { Component } from 'react';
+import React from 'react';
 //import logo from './logo.svg';
 import './App.css';
 import SearchBar from '../SearchBar/SearchBar';
@@ -83,12 +83,18 @@ addTrack = (track) => {
     }
 
     updatePlaylistName = (name) => {
-        this.state.playlistName = name;
+        this.setState({ playlistName: name });
     }
 
     savePlaylist = () => {
-      const trackURIs = this.state.playlistTracks.map(track => track.uri)
-    }
+      const trackURIs = this.state.playlistTracks.map(track => track.uri);
+      Spotify.savePlaylist(this.state.playlistName, trackURIs).then(() => {
+        this.setState({
+          playlistName: 'New Playlist',
+          playlistTracks: []
+        });
+      });
+ }
     //Create a method called search that accepts a search term and logs the term tot he console
     search(userSearch) {
        Spotify.search(userSearch).then(tracks => {

@@ -13,13 +13,12 @@ const Spotify = {
       return accessToken;
     }
     //no access token or it expired, so check URL
-    if (window.location.hash) {
-      const accessToken = window.location.href.match(/access_token=([^&]*)/);
-    }
+      const accessTokenSet = window.location.href.match(/access_token=([^&]*)/);
+      const expiresInSet = window.location.href.match(/expires_in=([^&]*)/)
     //if access token in URL
-    if (accessToken) {
-      //set expiration
-      const expiresIn = window.location.href.match(/expires_in=([^&]*)/)
+    if (accessTokenSet && expiresInSet) {
+      accessToken = accessTokenSet[1];
+      const expiresIn = Number(expiresInSet[1]);
       window.setTimeout(() => accessToken = '', expiresIn * 1000);
       window.history.pushState('Access Token', null, '/');
       return accessToken;
@@ -52,8 +51,53 @@ const Spotify = {
           return [];
         }
       });
+    },
+
+    savePlayList (playlistName, trackURIs) {
+      if (!playlistName || !trackURIs.length) {
+        return;
+      }
+      //Step 91: Create 3 variables, one for access token set to users token
+      //a header set to object with authorization parameter with user's token from Spotify's implicit grnat flow
+      //an empty variable for user ID.
+      const accessToken = Spotify.getAccessToken();
+      const headers = {
+        Authorization: `Bearer ${accessToken}`
+      };
+      let userId = '';
+
+      return fetch('https://api.spotify.com/v1/me', {headers: headers}
+          ).then(
+            response => {
+              if(response.ok) {
+                return response.json();
+              }
+      }).then(
+          jsonResponse => {
+            userId = jsonResponse.id;
+            return fetch(`https://api.spotify.com/v1/users/${userId}/playlists`, {
+              //pass a second argument that contains an object with parameters for headers, method & body
+              headers: headers,
+              method: 'POST',
+              body: JSON.stringify({playlistName:playlistName}),
+          })}).then(
+            response => {
+              if (response.ok) {
+                return response.json();
+          }}).then(
+            jsonResponse => {
+              const playlistId = jsonResponse.id;
+
+              return fetch(`https://api.spotify.com/v1/users/${userId}/playlists/${playlistId}/tracks`, {
+                  headers: headers,
+                  method: 'POST',
+                  body: JSON.stringify({uris:trackURIs})
+                });
+            });
+        }
     }
-}
+
+
 
 
 
