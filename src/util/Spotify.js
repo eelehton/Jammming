@@ -30,6 +30,7 @@ const Spotify = {
 
   //Step 85: Add a method search that accepts a parameter for user's search term
   search: (userSearch) => {
+    debugger;
     //returns a promise that will eventually resolve to the list of tracks from search
     return fetch(`https://api.spotify.com/v1/search?type=track&limit=20&q=${userSearch}`, {
       //Adds authorization header to the request for the access token
@@ -53,9 +54,10 @@ const Spotify = {
       });
     },
 
-    savePlayList (playlistName, trackURIs) {
+    savePlayList: (playlistName, trackURIs) => {
+      debugger;
       if (!playlistName || !trackURIs.length) {
-        return;
+        return Promise.reject("error");
       }
       //Step 91: Create 3 variables, one for access token set to users token
       //a header set to object with authorization parameter with user's token from Spotify's implicit grnat flow

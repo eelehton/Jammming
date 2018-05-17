@@ -25,7 +25,7 @@ class App extends React.Component {
     this.removeTrack = this.removeTrack.bind(this);
     this.updatePlaylistName = this.updatePlaylistName.bind(this);
     this.search = this.search.bind(this);
-    this.savePlaylist = this.savePlaylist.bind(this);
+    this.savePlayList = this.savePlayList.bind(this);
    }
 
 //this created a method
@@ -86,14 +86,15 @@ addTrack = (track) => {
         this.setState({ playlistName: name });
     }
 
-    savePlaylist = () => {
+    savePlayList = () => {
       const trackURIs = this.state.playlistTracks.map(track => track.uri);
-      Spotify.savePlaylist(this.state.playlistName, trackURIs).then(() => {
+      Spotify.savePlayList(this.state.playlistName, trackURIs).then(() => {
         this.setState({
           playlistName: 'New Playlist',
           playlistTracks: []
         });
-      });
+      })
+      .catch((error) => { console.log(error); });
  }
     //Create a method called search that accepts a search term and logs the term tot he console
     search(userSearch) {
@@ -119,7 +120,7 @@ addTrack = (track) => {
               playlistTracks = {this.state.playlistTracks}
               onRemove = {this.removeTrack}
               onNameChange = {this.updatePlaylistName}
-              onSave = {this.savePlaylist}
+              onSave = {this.savePlayList}
                />
         </div>
         </div>
