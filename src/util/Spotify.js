@@ -14,7 +14,7 @@ const Spotify = {
     }
     //no access token or it expired, so check URL
       const accessTokenSet = window.location.href.match(/access_token=([^&]*)/);
-      const expiresInSet = window.location.href.match(/expires_in=([^&]*)/)
+      const expiresInSet = window.location.href.match(/expires_in=([^&]*)/);
     //if access token in URL
     if (accessTokenSet && expiresInSet) {
       accessToken = accessTokenSet[1];
@@ -24,14 +24,14 @@ const Spotify = {
       return accessToken;
     } else {
       //tell user to login
-      window.location(`https://accounts.spotify.com/authorize?client_id=${clientId}&response_type=token&scope=playlist-modify-public&redirect_uri=${redirectUri}`)
+      window.location = `https://accounts.spotify.com/authorize?client_id=${clientId}&response_type=token&scope=playlist-modify-public&redirect_uri=${redirectUri}`;
     }
   },
 
   //Step 85: Add a method search that accepts a parameter for user's search term
   search: (userSearch) => {
-    debugger;
-    //returns a promise that will eventually resolve to the list of tracks from search
+    const accessToken = Spotify.getAccessToken();
+        //returns a promise that will eventually resolve to the list of tracks from search
     return fetch(`https://api.spotify.com/v1/search?type=track&limit=20&q=${userSearch}`, {
       //Adds authorization header to the request for the access token
       headers: {
@@ -54,50 +54,42 @@ const Spotify = {
       });
     },
 
-    savePlayList: (playlistName, trackURIs) => {
-      debugger;
-      if (!playlistName || !trackURIs.length) {
-        return Promise.reject("error");
-      }
-      //Step 91: Create 3 variables, one for access token set to users token
-      //a header set to object with authorization parameter with user's token from Spotify's implicit grnat flow
-      //an empty variable for user ID.
-      const accessToken = Spotify.getAccessToken();
-      const headers = {
-        Authorization: `Bearer ${accessToken}`
-      };
-      let userId = '';
+    savePlayList: (name, trackURIs) => {
+		if (!name || !trackURIs.length) {
+			return;
+		}
+		//Step 91: Create 3 variables, one for access token set to users token
+		//a header set to object with authorization parameter with user's token from Spotify's implicit grnat flow
+		//an empty variable for user ID.
+		const accessToken = Spotify.getAccessToken();
+		const headers = {
+			Authorization: `Bearer ${accessToken}`
+		};
+		let userId = '';
 
-      return fetch('https://api.spotify.com/v1/me', {headers: headers}
-          ).then(
-            response => {
-              if(response.ok) {
-                return response.json();
-              }
-      }).then(
-          jsonResponse => {
-            userId = jsonResponse.id;
-            return fetch(`https://api.spotify.com/v1/users/${userId}/playlists`, {
-              //pass a second argument that contains an object with parameters for headers, method & body
-              headers: headers,
-              method: 'POST',
-              body: JSON.stringify({playlistName:playlistName}),
-          })}).then(
-            response => {
-              if (response.ok) {
-                return response.json();
-          }}).then(
-            jsonResponse => {
-              const playlistId = jsonResponse.id;
+		return fetch('https://api.spotify.com/v1/me', { headers: headers })
+			.then(response => response.json())
+			.then(jsonResponse => {
+				userId = jsonResponse.id;
+				return fetch(`https://api.spotify.com/v1/users/${userId}/playlists`, {
+					//pass a second argument that contains an object with parameters for headers, method & body
+					headers: headers,
+					method: 'POST',
+					body: JSON.stringify({ name: name })
+				});
+			})
+			.then(response => response.json())
+			.then(jsonResponse => {
+				const playlistId = jsonResponse.id;
 
-              return fetch(`https://api.spotify.com/v1/users/${userId}/playlists/${playlistId}/tracks`, {
-                  headers: headers,
-                  method: 'POST',
-                  body: JSON.stringify({uris:trackURIs})
-                });
-            });
-        }
-    }
+				return fetch(`https://api.spotify.com/v1/users/${userId}/playlists/${playlistId}/tracks`, {
+					headers: headers,
+					method: 'POST',
+					body: JSON.stringify({ uris: trackURIs })
+				});
+			});
+	}
+}
 
 
 

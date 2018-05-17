@@ -7,9 +7,11 @@ import SearchResults from '../SearchResults/SearchResults';
 import Playlist from '../Playlist/Playlist';
 import Spotify from '../../util/Spotify';
 
+
 class App extends React.Component {
   constructor(props) {
     super(props);
+
     //setting searchResults to an array of objects each containing name, artist, album and id properties
   //this.state is a local call
   //hardcoding the Results
@@ -27,7 +29,9 @@ class App extends React.Component {
     this.search = this.search.bind(this);
     this.savePlayList = this.savePlayList.bind(this);
    }
-
+   componentDidMount() {
+   Spotify.getAccessToken();
+   }
 //this created a method
 addTrack = (track) => {
     console.log('addTrack', track);
@@ -94,14 +98,18 @@ addTrack = (track) => {
           playlistTracks: []
         });
       })
-      .catch((error) => { console.log(error); });
+      .catch((error) => { console.log(error)});
  }
     //Create a method called search that accepts a search term and logs the term tot he console
     search(userSearch) {
+      if (userSearch.length === 0) {
+        return;
+        } else {
        Spotify.search(userSearch).then(tracks => {
          this.setState({ searchResults: tracks });
        });
      }
+  }
 //render needs to be part of my component
 //  this passes the value from this.state.searchResults into the SearchResults component with the Prop name searchResults;
   render() {
